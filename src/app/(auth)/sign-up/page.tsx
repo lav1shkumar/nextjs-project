@@ -22,8 +22,9 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect,useState } from "react";
 import { signUpSchema } from "@/schemas/signUpSchema";
+import { useDebounce } from 'use-debounce';
 
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
 import { Spinner } from "@/components/ui/spinner";
 import { useRouter } from "next/navigation";
 
@@ -38,10 +39,52 @@ export default function Signup() {
     resolver: zodResolver(signUpSchema), 
   });
 
-  const [error, setError] = useState("");
+  const usernameSchema = signUpSchema.shape.username
+
+  const [usernameMessage, setUsernameMessage] = useState("");
+  const [isCheckingUsername, setisCheckingUsername] = useState(false);
   const [response, setResponse] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const router = useRouter();
+
+  const username = watch("username")
+  const [debouncedUsername] = useDebounce(username, 500)
+
+
+  useEffect(()=>{
+      if (!debouncedUsername) return;
+      
+      async function checkUnique(validUsername:string) {
+        try {
+          const response = await axios.get(`/api/check-username-unique?username=${validUsername}`);
+          console.log(response.data);
+          setUsernameMessage(response.data.message)
+          console.log(response.data.message)
+
+        } 
+        catch (error) {
+          if (axios.isAxiosError(error) && error.response) {
+            setUsernameMessage(error.response.data.message);
+            
+          } else {
+            setUsernameMessage("Unknown error");
+
+          }
+        }finally{
+          setTimeout(()=>{setisCheckingUsername(false);},300)
+          
+        }
+        
+      }
+
+      const result = usernameSchema.safeParse(debouncedUsername);
+      if(result.success){
+        setisCheckingUsername(true);
+        checkUnique(result.data)
+      }
+      else return;
+
+  },[debouncedUsername])
 
   
   const onSubmit = async (data: z.infer<typeof signUpSchema>) => {
@@ -74,7 +117,6 @@ export default function Signup() {
       
     }
     setIsProcessing(false)
-
   }
 
 return (
@@ -99,10 +141,24 @@ return (
             <FieldGroup>
               <Field>
                 <FieldLabel htmlFor="name">Username</FieldLabel>
-                <Input id="username" type="text" placeholder="lavish" required {...register("username")} disabled={isSubmitting}/>
+                <div className="relative flex flex-row-reverse items-center">
+                  <Input id="username" type="text" placeholder="username" required 
+                  {...register("username")} 
+                  disabled={isSubmitting}
+                  />
+                  {isCheckingUsername && <Spinner className="absolute mr-5"/>}
+
+                </div>
+        
+            
                 {errors.username && (
                   <FieldDescription className="text-red-500 text-sm">
                   {errors.username.message}
+                  </FieldDescription>
+                )}
+                {!errors.username && usernameMessage && (
+                  <FieldDescription className="text-red-500 text-sm">
+                  {usernameMessage}
                   </FieldDescription>
                 )}
               </Field>
@@ -155,7 +211,7 @@ return (
                 </Button>}
                 
                 <FieldDescription className="text-center">
-                  Already have an account? <a href="#">Sign in</a>
+                  Already have an account? <a href="/sign-in">Sign in</a>
                   {response && (
                     <FieldDescription className="text-red-500 text-sm pt-2">
                     {response}

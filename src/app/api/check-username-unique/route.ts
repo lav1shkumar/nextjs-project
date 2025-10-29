@@ -34,15 +34,15 @@ export async function GET(request: Request) {
         if (existingVerifiedUser) {
             return Response.json({
                 success: false,
-                message: 'Username is already taken'
+                message: 'Username is already taken!'
             }, { status: 400 }
             )
         }
 
         return Response.json({
                 success: true,
-                message: 'Username is available'
-            }, { status: 500 }
+                message: 'Username is available!'
+            }, { status: 200 }
             )
 
 
@@ -52,7 +52,7 @@ export async function GET(request: Request) {
         return Response.json(
             {
                 success: false,
-                message: "Error checking username"
+                message: "Error checking username!"
             },
             {
                 status: 500

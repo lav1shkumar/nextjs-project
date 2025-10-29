@@ -138,7 +138,7 @@ export default function LoginPage() {
                 <p className="text-red-500 text-sm text-center">{error}</p>
                 <Button type="submit">Login</Button>
                 <FieldDescription className="text-center">
-                  Don&apos;t have an account? <a href="#">Sign up</a>
+                  Don&apos;t have an account? <a href="/sign-up">Sign up</a>
                 </FieldDescription>
               </Field>
             </FieldGroup>
