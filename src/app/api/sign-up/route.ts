@@ -18,7 +18,7 @@ export async function POST(request: Request){
             return Response.json(
                 {
                     success: false,
-                    message: "Username is already taken"
+                    message: "Username is already taken!"
                 },
                 {
                     status: 400
@@ -35,7 +35,7 @@ export async function POST(request: Request){
                 return Response.json(
                 {
                     success: false,
-                    message: "User already exist with the email"
+                    message: "User already exist with the email!"
                 },
                 {
                     status: 500
@@ -92,7 +92,7 @@ export async function POST(request: Request){
         return Response.json(
                 {
                     success: true,
-                    message: "User registered Successfully. Please verify your email"
+                    message: "User registered Successfully. Please verify your email and login!"
                 },
                 {
                     status: 201
@@ -105,7 +105,7 @@ export async function POST(request: Request){
         return Response.json(
             {
                 success: false,
-                message: "Error registering user"
+                message: "Error registering user!"
             },
             {
                 status : 500
