@@ -137,20 +137,22 @@ export default function Signup() {
               >
                 <FieldGroup>
                   <Field>
-                    <FieldLabel htmlFor="name">Username</FieldLabel>
-                    <div className="relative flex flex-row-reverse items-center">
-                      <Input
+                    <FieldLabel htmlFor="username">Username</FieldLabel>
+                      <div className="relative">
+                        <Input
+                        className="hover:border-gray-400 transition-colors duration-300"
                         id="username"
                         type="text"
                         placeholder="username"
                         required
                         {...register("username")}
                         disabled={isSubmitting}
-                      />
-                      {isCheckingUsername && (
-                        <Spinner className="absolute mr-5" />
-                      )}
-                    </div>
+                        />
+                        {isCheckingUsername && (
+                        <Spinner className="absolute right-4 bottom-3"/>
+                        )}
+                      </div>
+
                     {usernameMessage && (
                       <FieldError
                         className={
@@ -166,6 +168,7 @@ export default function Signup() {
                   <Field>
                     <FieldLabel htmlFor="email">Email</FieldLabel>
                     <Input
+                      className="hover:border-gray-400 transition-colors duration-300"
                       id="email"
                       type="email"
                       placeholder="m@example.com"
@@ -179,6 +182,7 @@ export default function Signup() {
                       <Field>
                         <FieldLabel htmlFor="password">Password</FieldLabel>
                         <Input
+                          className="hover:border-gray-400 transition-colors duration-300"
                           id="password"
                           type="password"
                           required
@@ -192,6 +196,7 @@ export default function Signup() {
                           Confirm Password
                         </FieldLabel>
                         <Input
+                          className="hover:border-gray-400 transition-colors duration-300"
                           id="confirm-password"
                           type="password"
                           required

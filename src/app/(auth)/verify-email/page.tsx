@@ -58,6 +58,7 @@ export default function OTPPage() {
         code,
       });
       const { success, message } = response.data;
+      console.log(success)
       setError(message);
     } catch (error) {
       if (axios.isAxiosError(error)) {
