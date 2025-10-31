@@ -11,6 +11,7 @@ import {
 import {
   Field,
   FieldDescription,
+  FieldError,
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field";
@@ -42,14 +43,13 @@ export default function Signup() {
   const [usernameMessage, setUsernameMessage] = useState("");
   const [isCheckingUsername, setisCheckingUsername] = useState(false);
   const [response, setResponse] = useState("");
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [isProcessing, setisProcessing] = useState(false);
   const router = useRouter();
 
-  const username = watch("username");
-  const [debouncedUsername] = useDebounce(username, 500);
+  const [username] = useDebounce(watch("username"), 500);
 
   useEffect(() => {
-    if (!debouncedUsername) return;
+    if (!username) return;
 
     async function checkUnique(validUsername: string) {
       try {
@@ -72,19 +72,22 @@ export default function Signup() {
       }
     }
 
-    const result = usernameSchema.safeParse(debouncedUsername);
+    const result = usernameSchema.safeParse(username);
     if (result.success) {
       setisCheckingUsername(true);
       checkUnique(result.data);
-    } else return;
-  }, [debouncedUsername]);
+    } else {
+      setUsernameMessage(result.error.issues[0]?.message ?? "Invalid username");
+      return;
+    }
+  }, [username]);
 
   const onSubmit = async (data: z.infer<typeof signUpSchema>) => {
     const username = data.username;
     const email = data.email;
     const password = data.password;
 
-    setIsProcessing(true);
+    setisProcessing(true);
     console.log(isSubmitting);
 
     try {
@@ -93,7 +96,7 @@ export default function Signup() {
         email,
         password,
       });
-      //console.log(response.data);
+
       const { success, message } = response.data;
       setResponse(message);
 
@@ -105,7 +108,7 @@ export default function Signup() {
     } catch (error) {
       console.error(error);
     }
-    setIsProcessing(false);
+    setisProcessing(false);
   };
 
   return (
@@ -148,16 +151,16 @@ export default function Signup() {
                         <Spinner className="absolute mr-5" />
                       )}
                     </div>
-
-                    {errors.username && (
-                      <FieldDescription className="text-red-500 text-sm">
-                        {errors.username.message}
-                      </FieldDescription>
-                    )}
-                    {!errors.username && usernameMessage && (
-                      <FieldDescription className="text-red-500 text-sm">
+                    {usernameMessage && (
+                      <FieldError
+                        className={
+                          usernameMessage == "Username is available!"
+                            ? "text-green-500 text-sm"
+                            : "text-red-500 text-sm"
+                        }
+                      >
                         {usernameMessage}
-                      </FieldDescription>
+                      </FieldError>
                     )}
                   </Field>
                   <Field>
@@ -199,15 +202,15 @@ export default function Signup() {
                     </Field>
                     <FieldDescription>
                       {errors.password && (
-                        <FieldDescription className="text-red-500 text-sm self-center">
+                        <FieldError className="text-red-500 text-sm self-center">
                           {errors.password.message}
-                        </FieldDescription>
+                        </FieldError>
                       )}
 
                       {!errors.password && errors.confirmpassword && (
-                        <FieldDescription className="text-red-500 text-sm self-center">
+                        <FieldError className="text-red-500 text-sm self-center">
                           {errors.confirmpassword.message}
-                        </FieldDescription>
+                        </FieldError>
                       )}
                     </FieldDescription>
                   </Field>

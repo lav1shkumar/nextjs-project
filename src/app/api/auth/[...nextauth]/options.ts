@@ -4,6 +4,8 @@ import bcrypt from "bcryptjs";
 import UserModel from "@/model/user";
 import dbConnect from "@/lib/dbConnect";
 import { Provider } from "react";
+import z from "zod";
+import { signInSchema } from "@/schemas/signInSchema";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -14,13 +16,17 @@ export const authOptions: NextAuthOptions = {
         email: { label: "Email", type: "text" },
         password: { label: "Password", type: "password" },
       },
-      async authorize(credentials: any): Promise<any> {
+      async authorize(raw):Promise<any> {
+        const parsed = signInSchema.safeParse(raw);
+        if (!parsed.success) return null;
+        const { identifier, password } = parsed.data;
+
         await dbConnect();
         try {
           const user = await UserModel.findOne({
             $or: [
-              { email: credentials.identifier },
-              { username: credentials.identifier },
+              { email: identifier },
+              { username: identifier },
             ],
           });
           if (!user) {
@@ -32,7 +38,7 @@ export const authOptions: NextAuthOptions = {
           // }
 
           const isPasswordCorrect = await bcrypt.compare(
-            credentials.password,
+            password,
             user.password
           );
           if (isPasswordCorrect) {
