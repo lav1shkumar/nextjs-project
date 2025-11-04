@@ -1,21 +1,4 @@
 "use client";
-import { GalleryVerticalEnd } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Field,
-  FieldDescription,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-} from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
 
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -23,10 +6,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { signUpSchema } from "@/schemas/signUpSchema";
 import { useDebounce } from "use-debounce";
-
 import axios from "axios";
-import { Spinner } from "@/components/ui/spinner";
 import { useRouter } from "next/navigation";
+import { error } from "console";
 
 export default function Signup() {
   const {
@@ -112,141 +94,163 @@ export default function Signup() {
   };
 
   return (
-    <div className="bg-muted flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10">
-      <div className="flex w-full max-w-sm flex-col gap-6">
-        <a href="#" className="flex items-center gap-2 self-center font-medium">
-          <div className="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md">
-            <GalleryVerticalEnd className="size-4" />
-          </div>
-          Example
-        </a>
-        <div className="flex flex-col gap-6">
-          <Card>
-            <CardHeader className="text-center">
-              <CardTitle className="text-xl">Create your account</CardTitle>
-              <CardDescription>
-                Enter your email below to create your account
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form
-                onSubmit={handleSubmit(onSubmit)}
-                onClick={() => {
-                  setResponse("");
-                }}
+    <div className="min-h-screen flex items-center justify-center bg-base-100">
+      <div className="bg-base-300 rounded-2xl shadow-xl p-8 w-full max-w-md">
+        <h2 className="text-2xl font-bold mb-1">Create your account</h2>
+        <p className="text-base-content/70 mb-6">
+          Unlock all features of CodeX with a single account and start
+          collaborating, coding, and preparing for interviews instantly.
+        </p>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <fieldset className="fieldset my-3">
+            <legend className="fieldset-legend">Username</legend>
+            <label className="input w-full">
+              <input
+                type="text"
+                placeholder="username"
+                {...register("username")}
+              />
+              {isCheckingUsername && (
+                <span className="loading loading-dots"></span>
+              )}
+            </label>
+            {errors.username && (
+              <p className="label text-red-500 -mb-2">
+                {errors.username.message}
+              </p>
+            )}
+            {!errors.username && (
+              <p
+                className={
+                  usernameMessage === "Username is available!"
+                    ? "label -mb-2 text-green-500"
+                    : "label -mb-2 text-red-500"
+                }
               >
-                <FieldGroup>
-                  <Field>
-                    <FieldLabel htmlFor="username">Username</FieldLabel>
-                      <div className="relative">
-                        <Input
-                        className="hover:border-gray-400 transition-colors duration-300"
-                        id="username"
-                        type="text"
-                        placeholder="username"
-                        required
-                        {...register("username")}
-                        disabled={isSubmitting}
-                        />
-                        {isCheckingUsername && (
-                        <Spinner className="absolute right-4 bottom-3"/>
-                        )}
-                      </div>
+                {usernameMessage}
+              </p>
+            )}
+          </fieldset>
 
-                    {usernameMessage && (
-                      <FieldError
-                        className={
-                          usernameMessage == "Username is available!"
-                            ? "text-green-500 text-sm"
-                            : "text-red-500 text-sm"
-                        }
-                      >
-                        {usernameMessage}
-                      </FieldError>
-                    )}
-                  </Field>
-                  <Field>
-                    <FieldLabel htmlFor="email">Email</FieldLabel>
-                    <Input
-                      className="hover:border-gray-400 transition-colors duration-300"
-                      id="email"
-                      type="email"
-                      placeholder="m@example.com"
-                      {...register("email")}
-                      disabled={isSubmitting}
-                      required
-                    />
-                  </Field>
-                  <Field>
-                    <Field className="grid grid-cols-2 gap-4">
-                      <Field>
-                        <FieldLabel htmlFor="password">Password</FieldLabel>
-                        <Input
-                          className="hover:border-gray-400 transition-colors duration-300"
-                          id="password"
-                          type="password"
-                          required
-                          {...register("password")}
-                          disabled={isSubmitting}
-                        />
-                      </Field>
+          <fieldset className="fieldset my-3">
+            <legend className="fieldset-legend">Email</legend>
+            <label className="input w-full">
+              <input
+                type="text"
+                placeholder="x@codex.com"
+                {...register("email")}
+              />
+            </label>
+            {errors.email && (
+              <p className="label text-red-500 -mb-5">{errors.email.message}</p>
+            )}
+          </fieldset>
 
-                      <Field>
-                        <FieldLabel htmlFor="confirm-password">
-                          Confirm Password
-                        </FieldLabel>
-                        <Input
-                          className="hover:border-gray-400 transition-colors duration-300"
-                          id="confirm-password"
-                          type="password"
-                          required
-                          {...register("confirmpassword")}
-                          disabled={isSubmitting}
-                        />
-                      </Field>
-                    </Field>
-                    <FieldDescription>
-                      {errors.password && (
-                        <FieldError className="text-red-500 text-sm self-center">
-                          {errors.password.message}
-                        </FieldError>
-                      )}
+          <div className="flex gap-3 -mb-3">
+            <fieldset className="fieldset my-3">
+              <legend className="fieldset-legend">Password</legend>
+              <label className="input w-full">
+                <input
+                  type="text"
+                  placeholder="password"
+                  {...register("password")}
+                />
+              </label>
+            </fieldset>
+            <fieldset className="fieldset my-3">
+              <legend className="fieldset-legend">Confirm Password</legend>
+              <label className="input w-full">
+                <input
+                  type="text"
+                  placeholder="password"
+                  {...register("confirmpassword")}
+                />
+              </label>
+            </fieldset>
+          </div>
 
-                      {!errors.password && errors.confirmpassword && (
-                        <FieldError className="text-red-500 text-sm self-center">
-                          {errors.confirmpassword.message}
-                        </FieldError>
-                      )}
-                    </FieldDescription>
-                  </Field>
-                  <Field>
-                    {isProcessing ? (
-                      <Button variant="secondary" type="submit">
-                        Please Wait
-                        <Spinner />
-                      </Button>
-                    ) : (
-                      <Button type="submit">Create Account</Button>
-                    )}
+          {errors.password && (
+            <p className="label text-red-500 text-[12px]">
+              {errors.password.message}
+            </p>
+          )}
+          {!errors.password && errors.confirmpassword && (
+            <p className="label text-red-500 text-[12px]">
+              {errors.confirmpassword.message}
+            </p>
+          )}
 
-                    <FieldDescription className="text-center">
-                      Already have an account? <a href="/sign-in">Sign in</a>
-                      {response && (
-                        <FieldDescription className="text-red-500 text-sm pt-2">
-                          {response}
-                        </FieldDescription>
-                      )}
-                    </FieldDescription>
-                  </Field>
-                </FieldGroup>
-              </form>
-            </CardContent>
-          </Card>
-          <FieldDescription className="px-6 text-center">
-            By clicking continue, you agree to our{" "}
-            <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
-          </FieldDescription>
+          <button
+            type="submit"
+            className="btn w-full btn-primary my-3 hover:brightness-95"
+          >
+            Continue
+          </button>
+        </form>
+        <div className="flex items-center my-4">
+          <span className="flex-1 h-px bg-neutral-content/30"></span>
+          <span className="mx-2 text-xs text-base-content/50">OR</span>
+          <span className="flex-1 h-px bg-neutral-content/30"></span>
         </div>
+
+        <div className="flex flex-col gap-4 items-center">
+          <button className="btn btn-outline btn-primary w-80 flex items-center justify-center gap-3 hover:bg-primary hover:text-white transition">
+            <svg
+              aria-label="Google logo"
+              width="20"
+              height="20"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 512 512"
+            >
+              <g>
+                <path d="m0 0H512V512H0" fill="none"></path>
+                <path
+                  fill="currentColor"
+                  d="M153 292c30 82 118 95 171 60h62v48A192 192 0 0190 341"
+                ></path>
+                <path
+                  fill="currentColor"
+                  d="m386 400a140 175 0 0053-179H260v74h102q-7 37-38 57"
+                ></path>
+                <path
+                  fill="currentColor"
+                  d="m90 341a208 200 0 010-171l63 49q-12 37 0 73"
+                ></path>
+                <path
+                  fill="currentColor"
+                  d="m153 219c22-69 116-109 179-50l55-54c-78-75-230-72-297 55"
+                ></path>
+              </g>
+            </svg>
+            Signup with Google
+          </button>
+          <button className="btn btn-outline btn-primary w-80 flex items-center justify-center gap-3 hover:bg-primary hover:text-white transition">
+            <svg
+              aria-label="GitHub logo"
+              width="20"
+              height="20"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+            >
+              <path
+                fill="currentColor"
+                d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 
+              6.84 9.5.5.08.66-.23.66-.5 0-.27 0-.9 0-1.73-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.1-1.47-1.1-1.47-.91-.62.08-.64.08-.64 1 .07 1.53 1.03 1.53 1.03 1.87 2.52 4.34 2.07 4.91 1.83.09-.65.35-1.09.63-1.34C7.95 16.17 5.62 15.31 5.62 11.5c0-.68.38-1.57 1.03-2.28-.1-.25-.45-1.29 0-2.64 0 0 .84-.27 2.75 1.01a9.58 9.58 0 0 1 5 0c1.91-1.28 2.75-1.01 2.75-1.01.55 1.35.21 2.39.11 2.64.64.71 1.02 1.6 1.02 2.28 0 3.82-2.34 4.67-4.56 4.92.27.24.52.86.52 1.73 0 1.25 0 2.26 0 2.56 0 .27.16.59.67.49A10.01 10.01 0 0 0 22 12a10 10 0 0 0-10-10z"
+              ></path>
+            </svg>
+            Signup with GitHub
+          </button>
+        </div>
+        <p className="text-center text-sm mt-2">
+          Already have an account?
+          <button
+            type="submit"
+            className="btn btn-link p-1"
+            onClick={() => router.push("/sign-in")}
+          >
+            Sign in
+          </button>
+        </p>
       </div>
     </div>
   );

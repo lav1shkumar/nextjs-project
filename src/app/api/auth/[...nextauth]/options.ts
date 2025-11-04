@@ -1,4 +1,4 @@
-import { NextAuthOptions } from "next-auth";
+import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import UserModel from "@/utils/user";
@@ -16,7 +16,7 @@ export const authOptions: NextAuthOptions = {
         email: { label: "Email", type: "text" },
         password: { label: "Password", type: "password" },
       },
-      async authorize(raw):Promise<any> {
+      async authorize(raw): Promise<any> {
         const parsed = signInSchema.safeParse(raw);
         if (!parsed.success) return null;
         const { identifier, password } = parsed.data;
@@ -24,18 +24,15 @@ export const authOptions: NextAuthOptions = {
         await dbConnect();
         try {
           const user = await UserModel.findOne({
-            $or: [
-              { email: identifier },
-              { username: identifier },
-            ],
+            $or: [{ email: identifier }, { username: identifier }],
           });
           if (!user) {
             throw new Error("No user found with this email/username!");
           }
 
-          // if (!user.isVerified) {
-          //     throw new Error("Please verify your account before login")
-          // }
+          if (!user.isVerified) {
+            throw new Error("Please verify your account before login");
+          }
 
           const isPasswordCorrect = await bcrypt.compare(
             password,
@@ -57,7 +54,7 @@ export const authOptions: NextAuthOptions = {
       if (token) {
         session.user._id = token._id?.toString();
         session.user.isVerified = token.isVerified;
-        session.user.isAcceptingMessages = token.isAcceptingMessages;
+        session.user.coverImage = token.coverImage;
         session.user.username = token.username;
       }
       return session;
@@ -66,7 +63,7 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token._id = user._id?.toString();
         token.isVerified = user.isVerified;
-        token.isAcceptingMessages = user.isAcceptingMessages;
+        token.coverImage = user.coverImage;
         token.username = user.username;
       }
       return token;
@@ -80,3 +77,5 @@ export const authOptions: NextAuthOptions = {
   },
   secret: process.env.NEXTAUTH_SECRET,
 };
+
+export default NextAuth(authOptions);
